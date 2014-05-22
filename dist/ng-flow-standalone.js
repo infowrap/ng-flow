@@ -68,6 +68,7 @@
       simultaneousUploads: 3,
       singleFile: false,
       fileParameterName: 'file',
+      ignoreFilenames: ['.'],
       progressCallbacksInterval: 500,
       speedSmoothingFactor: 0.1,
       query: {},
@@ -531,13 +532,15 @@
     addFiles: function (fileList, event) {
       var files = [];
       each(fileList, function (file) {
-        // Directories have size `0` and name `.`
-        // Ignore already added files
-        if (!(file.size % 4096 === 0 && (file.name === '.' || file.fileName === '.')) &&
-          !this.getFromUniqueIdentifier(this.generateUniqueIdentifier(file))) {
-          var f = new FlowFile(this, file);
-          if (this.fire('fileAdded', f, event)) {
-            files.push(f);
+        // Directories have name `.`
+        // Ignore specified ignored filenames (configured via options) and already added files
+        if (!_.contains(this.defaults.ignoreFilenames, file.name || file.fileName)) {
+          if (!(file.size % 4096 === 0) &&
+            !this.getFromUniqueIdentifier(this.generateUniqueIdentifier(file))) {
+            var f = new FlowFile(this, file);
+            if (this.fire('fileAdded', f, event)) {
+              files.push(f);
+            }
           }
         }
       }, this);
@@ -1471,7 +1474,7 @@
    * Library version
    * @type {string}
    */
-  Flow.version = '2.5.0';
+  Flow.version = 'infowrap-2.5.0';
 
   if ( typeof module === "object" && module && typeof module.exports === "object" ) {
     // Expose Flow as module.exports in loaders that implement the Node
