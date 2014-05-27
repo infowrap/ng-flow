@@ -535,8 +535,7 @@
         // Directories have name `.`
         // Ignore specified ignored filenames (configured via options) and already added files
         if (!_.contains(this.opts.ignoreFilenames, file.name || file.fileName)) {
-          // !(file.size % 4096 === 0) && -- this condition doesn't work for Android 4.3, files picked from 'Gallery' have size 0 !
-          if (!this.getFromUniqueIdentifier(this.generateUniqueIdentifier(file))) {
+          if (!(file.size % 4096 === 0) && !this.getFromUniqueIdentifier(this.generateUniqueIdentifier(file))) {
             var f = new FlowFile(this, file);
             if (this.fire('fileAdded', f, event)) {
               files.push(f);
@@ -1474,7 +1473,7 @@
    * Library version
    * @type {string}
    */
-  Flow.version = 'infowrap-2.5.1';
+  Flow.version = 'infowrap-2.5.2';
 
   if ( typeof module === "object" && module && typeof module.exports === "object" ) {
     // Expose Flow as module.exports in loaders that implement the Node
