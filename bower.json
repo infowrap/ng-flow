@@ -1,6 +1,6 @@
 {
   "name": "ng-flow",
-  "version": "infowrap-2.4.2",
+  "version": "infowrap-2.4.3",
   "ignore": [
     "**/.*",
     "test",
@@ -16,7 +16,7 @@
   "main": "./dist/ng-flow.js",
   "dependencies": {
     "angular": "~1",
-    "flow.js": "git@github.com:infowrap/flow.js.git#infowrap-2.5.2"
+    "flow.js": "git@github.com:infowrap/flow.js.git#infowrap-2.5.3"
   },
   "devDependencies": {
     "angular-mocks": "~1"
