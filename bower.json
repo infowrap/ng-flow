@@ -1,6 +1,6 @@
 {
   "name": "ng-flow",
-  "version": "infowrap-2.4.5",
+  "version": "infowrap-2.4.6",
   "ignore": [
     "**/.*",
     "test",
