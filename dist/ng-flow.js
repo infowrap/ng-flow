@@ -63,11 +63,13 @@ angular.module('flow.provider', [])
 angular.module('flow.init', ['flow.provider'])
   .controller('flowCtrl', ['$scope', '$attrs', '$parse', 'flowFactory',
   function ($scope, $attrs, $parse, flowFactory) {
-    // create the flow object
-    var options = angular.extend({}, $scope.$eval($attrs.flowInit));
-    var flow = flowFactory.create(options);
 
-    flow.on('catchAll', function (eventName) {
+    var options = angular.extend({}, $scope.$eval($attrs.flowInit));
+
+    // use existing flow object or create a new one
+    var flow  = $scope.$eval($attrs.flowObject) || flowFactory.create(options);
+
+    var catchAllHandler = function(eventName){
       var args = Array.prototype.slice.call(arguments);
       args.shift();
       var event = $scope.$broadcast.apply($scope, ['flow::' + eventName, flow].concat(args));
@@ -79,9 +81,15 @@ angular.module('flow.init', ['flow.provider'])
       if (event.defaultPrevented) {
         return false;
       }
+    };
+
+    flow.on('catchAll', catchAllHandler);
+    $scope.$on('$destroy', function(){
+        flow.off('catchAll', catchAllHandler);
     });
 
     $scope.$flow = flow;
+
     if ($attrs.hasOwnProperty('flowName')) {
       $parse($attrs.flowName).assign($scope, flow);
       $scope.$on('$destroy', function () {
@@ -146,6 +154,7 @@ angular.module('flow.dragEvents', ['flow.init'])
           event.preventDefault();
         });
         element.bind('dragleave drop', function (event) {
+          $timeout.cancel(promise);
           promise = $timeout(function () {
             scope.$eval(attrs.flowDragLeave);
             promise = null;
@@ -165,6 +174,7 @@ angular.module('flow.dragEvents', ['flow.init'])
       }
     };
   }]);
+
 angular.module('flow.drop', ['flow.init'])
 .directive('flowDrop', function() {
   return {

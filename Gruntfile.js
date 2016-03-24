@@ -38,15 +38,43 @@ module.exports = function(grunt) {
       options: {
         configFile: 'karma.conf.js'
       },
-      watch: {
-
-      },
       continuous: {
         singleRun: true
+      },
+      coverage: {
+        singleRun: true,
+        browsers: ['Firefox'],
+        reporters: ['progress', 'coverage'],
+        preprocessors: {
+          'src/**/*.js': 'coverage'
+        },
+        coverageReporter: {
+          type: "lcov",
+          dir: "coverage"
+        }
+      },
+      saucelabs: {
+        singleRun: true,
+        reporters: ['progress', 'saucelabs'],
+        preprocessors: {
+          'src/**/*.js': 'coverage'
+        },
+        coverageReporter: {
+          type: "lcov",
+          dir: "coverage"
+        },
+        // global config for SauceLabs
+        sauceLabs: {
+          testName: 'ng-flow',
+          username: grunt.option('sauce-username') || process.env.SAUCE_USERNAME,
+          accessKey: grunt.option('sauce-access-key') || process.env.SAUCE_ACCESS_KEY,
+          tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+          startConnect: false
+        }
       }
     },
     clean: {
-      release: ["dist/"]
+      release: ["dist/ng*"]
     },
     bump: {
       options: {
@@ -70,14 +98,18 @@ module.exports = function(grunt) {
     if (key !== "grunt" && key.indexOf("grunt") === 0) grunt.loadNpmTasks(key);
   }
 
-  grunt.registerTask('build', ['concat', 'uglify']);
-  grunt.registerTask('test', ['karma:continuous']);
-  grunt.registerTask('watch', ['karma:watch']);
+  // Default task.
+  grunt.registerTask('default', ['test']);
 
+  // Release tasks
+  grunt.registerTask('build', ['concat', 'uglify']);
   grunt.registerTask('release', function(type) {
     type = type ? type : 'patch';
     grunt.task.run('bump-only:' + type);
     grunt.task.run('clean', 'build');
     grunt.task.run('bump-commit');
   });
+
+  // Development
+  grunt.registerTask('test', ["karma:coverage"]);
 };

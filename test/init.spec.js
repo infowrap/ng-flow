@@ -3,12 +3,14 @@ describe('init', function() {
   var $rootScope;
   var element;
   var elementScope;
+  var flowFactory;
 
   beforeEach(module('flow'));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_){
+  beforeEach(inject(function(_$compile_, _$rootScope_, _flowFactory_){
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    flowFactory = _flowFactory_;
     element = $compile('<div flow-init></div>')($rootScope);
     $rootScope.$digest();
     elementScope = element.scope();
@@ -45,6 +47,45 @@ describe('init', function() {
       expect($rootScope.obj.flow instanceof Flow).toBeTruthy();
       elementScope.$destroy();
       expect($rootScope.obj.flow).toBeUndefined();
+    });
+  });
+
+  describe('flow-object', function () {
+    it('should create a new flow object', function () {
+      spyOn(flowFactory, 'create').and.callThrough();
+      $compile('<div flow-init></div>')($rootScope);
+      $rootScope.$digest();
+      expect(flowFactory.create).toHaveBeenCalled();
+    });
+    it('should init with the existing flow object', function () {
+      $rootScope.existingFlow = flowFactory.create();
+      spyOn(flowFactory, 'create').and.callThrough();
+      element = $compile('<div flow-init flow-object="existingFlow"></div>')($rootScope);
+      elementScope = element.scope();
+      $rootScope.$digest();
+      expect(flowFactory.create).not.toHaveBeenCalled();
+      expect($rootScope.existingFlow).toBe(elementScope.$flow);
+    });
+    it('should remove event handlers from flow when the scope is destroyed', function () {
+      $rootScope.existingFlow = flowFactory.create();
+      element = $compile('<div flow-init flow-object="existingFlow"></div>')($rootScope);
+      elementScope = element.scope();
+
+      $compile('<div flow-init flow-object="existingFlow"></div>')($rootScope);
+      $rootScope.$digest();
+
+      var scopePrototype = Object.getPrototypeOf(elementScope);
+      spyOn(scopePrototype, '$broadcast').and.callThrough();
+
+      $rootScope.existingFlow.fire('fileProgress', 'file');
+      expect(elementScope.$broadcast.calls.count()).toEqual(2);
+
+      elementScope.$destroy();
+
+      elementScope.$broadcast.calls.reset();
+
+      $rootScope.existingFlow.fire('fileProgress', 'file');
+      expect(elementScope.$broadcast.calls.count()).toEqual(1);
     });
   });
 });

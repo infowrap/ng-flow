@@ -1,9 +1,8 @@
-What is ng-flow?
-============
+# ng-flow [![Build Status](https://travis-ci.org/flowjs/ng-flow.svg)](https://travis-ci.org/flowjs/ng-flow) [![Code Climate](https://codeclimate.com/github/flowjs/flow.js/badges/gpa.svg)](https://codeclimate.com/github/flowjs/flow.js) [![Test Coverage](https://codeclimate.com/github/flowjs/ng-flow/badges/coverage.svg)](https://codeclimate.com/github/flowjs/ng-flow/coverage)
 
-Flow.js extensions for angular.js framework, no 3rd party JS dependencies required!
+[![Saucelabs Test Status](https://saucelabs.com/browser-matrix/ng-flow.svg)](https://saucelabs.com/u/ng-flow)
 
-ng-flow extension is based on [Flow.js](https://github.com/flowjs/flow.js) library.
+ng-flow is a [Flow.js](https://github.com/flowjs/flow.js) extensions for angular.js framework, no 3rd party JS dependencies required!
 
 Demo: http://flowjs.github.io/ng-flow/
 
@@ -33,6 +32,15 @@ they are also concatenated with core flow.js library.
 
         angular.module('app', ['flow'])
         
+3) Include the files in your project
+```html
+<!-- concatenated flow.js + ng-flow libraries -->
+<script src="ng-flow/dist/ng-flow-standalone.min.js"></script>
+<!-- or include the files separately -->
+<script src="flow.js/dist/flow.min.js"></script>
+<script src="ng-flow/dist/ng-flow.min.js"></script>
+```
+
 How can I use it?
 ============
 
@@ -52,9 +60,12 @@ Secondly you need to assign some upload buttons:
 ````html
 <input type="file" flow-btn />
 <input type="file" flow-btn flow-directory />
+  Input OR Other element as upload button
+<span flow-btn>Upload File</span>
 ````
 
 First button is for normal uploads and second is for directory uploads.
+Note: avoid using `<a>` and `<button>` tags as file upload buttons, use `<span>` instead.
 
 
 Now you need to display uploaded files, all you need to do is to loop files array.
@@ -178,17 +189,17 @@ How can I catch events?
 Events are listed inside `flow-init` directive:
 ````html
 <div flow-init
-      flow-file-success=" ... properties '$file', '$message' can be accessed ... "
-      flow-file-progress=" ... property '$file' can be accessed ... "
-      flow-file-added=" ... properties '$file', '$event' can be accessed ... "
-      flow-files-added=" ... properties '$files', '$event' can be accessed ... "
-      flow-files-submitted=" ... properties '$files', '$event' can be accessed ... "
-      flow-file-retry=" ... property '$file' can be accessed ... "
-      flow-file-error=" ... properties '$file', '$message' can be accessed ... "
-      flow-error=" ... properties '$file', '$message' can be accessed ... "
-      flow-complete=" ... "
-      flow-upload-started=" ... "
-      flow-progress=" ... "
+        flow-file-success="someHandlerMethod( $file, $message, $flow )"
+        flow-file-progress="someHandlerMethod( $file, $flow )"
+        flow-file-added="someHandlerMethod( $file, $event, $flow )"
+        flow-files-added="someHandlerMethod( $files, $event, $flow )"
+        flow-files-submitted="someHandlerMethod( $files, $event, $flow )"
+        flow-file-retry="someHandlerMethod( $file, $flow )"
+        flow-file-error="someHandlerMethod( $file, $message, $flow )"
+        flow-error="someHandlerMethod( $file, $message, $flow )"
+        flow-complete=" ... "
+        flow-upload-started=" ... "
+        flow-progress=" ... "
       >
       <div flow-file-progress=" ... events can be also assigned inside flow-init ... "></div>
 
@@ -213,6 +224,21 @@ Use `flow-name` attribute and set it to any variable in the scope.
 <div flow-init flow-name="obj.flow">
     ... Flow is set to obj.flow  ...
     I have uploaded files: #{{obj.flow.files.length}}
+</div>
+````
+````javascript
+$scope.obj = {}; // variable "obj" must be initialized on the scope
+````
+
+How can I initialize flow with an existing flow object ?
+============
+
+Use `flow-object` attribute and set it with the existing flow object on scope.
+````html
+<div flow-init flow-object="existingFlowObject">
+    ... Flow is initialized with existingFlowObject, no new Flow object  is created ...
+    There are already {{ existingFLowObject.files.length }} files uploaded,
+    which is equal to {{ $flow.files.length }}.
 </div>
 ````
 
